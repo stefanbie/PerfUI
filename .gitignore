@@ -22,5 +22,4 @@ __pycache__
 # Other
 node_modules
 REPORTS
-TestReport.html
 *.swp
