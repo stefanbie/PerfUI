@@ -1,0 +1,26 @@
+# Python compiled files
+*.pyc
+__pycache__
+
+# Logs
+*.log
+
+# IDE config
+.vscode
+.project
+.pydevproject
+.settings
+.idea
+
+
+# Test files
+*.pyx
+*.specx
+*.csv
+
+
+# Other
+node_modules
+REPORTS
+TestReport.html
+*.swp
