@@ -19,6 +19,5 @@ if __name__ == "__main__":
     x.start()
     time.sleep(2)
     y.start()
-    logging.info("Main    : wait for the thread to finish")
     #x.join()
     logging.info("Main    : all done")
