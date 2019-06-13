@@ -1,18 +1,36 @@
 from threading import Thread
 from test_selenium import *
 import time
+from random import randint
 
-class thread(Thread):
+users = 5
+ramp_up_time = 20
+test_time = 60
 
-    def __init__(self, user, scenario):
+scenario_pool = []
+user_pool = []
+
+class Scenario():
+    def __init__(self, method, probability):
+        self.method = method
+        self.probability = probability
+
+def get_scenario_from_pool():
+    return scenario_pool[randint(0,len(scenario_pool)-1)]
+
+def add_scenario_to_pool(scenario):
+    for i in range(0, scenario.probability):
+        scenario_pool.append(scenario)
+
+class User(Thread):
+
+    def __init__(self):
         Thread.__init__(self)
-        self.user = user
-        self.scenario = scenario
         self.daemon = True
         self.stop_user = False
-        #self.options = webdriver.ChromeOptions()
+        self.options = webdriver.ChromeOptions()
         #self.options.headless = True
-        self.driver = webdriver.Chrome()
+        self.driver = webdriver.Chrome(options=self.options)
         self.start()
 
     def stop(self):
@@ -23,43 +41,23 @@ class thread(Thread):
             if(self.stop_user):
                 self.driver.quit()
                 break
-            self.scenario.method(self.driver)
+            scenario = get_scenario_from_pool()
+            try:
+                scenario.method(self.driver)
+            except:
+                print("forget it")
+                self.stop_user = True
             time.sleep(1)
 
-
-class User():
-    def __init__(self, id, name, password):
-        self.id = id
-        self.name = name
-        self.password = password
-
-class Scenario():
-    def __init__(self, id, method, probability):
-        self.id = id
-        self.method = method
-        self.probability = probability
-
-scenario_pool = []
-user_pool = []
-
-def get_scenario():
-    return scenario_pool[0]
-
-def get_user():
-    return user_pool[0]
-
 if __name__ == "__main__":
-    users = 3
-    test_time = 10
-    scenario_pool.append(Scenario(id=1, method=test_sundsvall, probability=1))
-    scenario_pool.append(Scenario(id=2, method=test_arboga, probability=3))
-    user_pool.append(User(id=1, name="gunnar", password="gunnar"))
-    user_pool.append(User(id=2, name="arne", password="arne"))
-    scenario = get_scenario()
-    user = get_user()
+    add_scenario_to_pool(Scenario(method=test_sundsvall, probability=1))
+    add_scenario_to_pool(Scenario(method=test_arboga, probability=3))
+    add_scenario_to_pool(Scenario(method=test_falun, probability=2))
 
-    t = thread(user=user, scenario=scenario)
-
+    for i in range(0,users):
+        user_pool.append(User())
+        time.sleep(ramp_up_time/users)
     time.sleep(test_time)
-    t.stop()
-    t.join()
+    for runner in user_pool:
+        runner.stop()
+        runner.join()
