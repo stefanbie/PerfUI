@@ -58,6 +58,6 @@ if __name__ == "__main__":
         user_pool.append(User())
         time.sleep(ramp_up_time/users)
     time.sleep(test_time)
-    for runner in user_pool:
-        runner.stop()
-        runner.join()
+    for user in user_pool:
+        user.stop()
+        user.join()
