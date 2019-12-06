@@ -19,7 +19,7 @@ def test_browse(driver):
     time.sleep(20)
     driver.find_element_by_xpath("//*[@href='/nopCommerce/apparel']").click()
     time.sleep(20)
-    driver.find_element_by_xpath("//*[@href='/nopCommerce/shoes']").click()
+    driver.find_element_by_xpath("//*[@title='Show products in category Shoes']").click()
     time.sleep(20)
 
 def test_add_item_to_cart(driver):

@@ -42,11 +42,7 @@ class User(Thread):
                 self.driver.quit()
                 break
             scenario = get_scenario_from_pool()
-            try:
-                scenario.method(self.driver)
-            except:
-                print("forget it")
-                self.stop_user = True
+            scenario.method(self.driver)
             time.sleep(1)
 
 if __name__ == "__main__":
