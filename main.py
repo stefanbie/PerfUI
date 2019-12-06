@@ -50,9 +50,9 @@ class User(Thread):
             time.sleep(1)
 
 if __name__ == "__main__":
-    add_scenario_to_pool(Scenario(method=test_sundsvall, probability=1))
-    add_scenario_to_pool(Scenario(method=test_arboga, probability=3))
-    add_scenario_to_pool(Scenario(method=test_falun, probability=2))
+    add_scenario_to_pool(Scenario(method=test_add_item_to_cart, probability=1))
+    add_scenario_to_pool(Scenario(method=test_search, probability=3))
+    add_scenario_to_pool(Scenario(method=test_browse, probability=2))
 
     for i in range(0,users):
         user_pool.append(User())
