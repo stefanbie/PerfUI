@@ -2,12 +2,14 @@ from selenium import webdriver
 import time
 import pytest
 
+host = "http://18.184.244.248"
+
 @pytest.fixture(autouse=True, scope='module')
 def driver():
     return webdriver.Chrome()
 
 def test_search(driver):
-    driver.get(r'http://35.158.97.204/nopCommerce/')
+    driver.get(r'{}/nopCommerce/'.format(host))
     time.sleep(20)
     driver.find_element_by_xpath("//*[@id='small-searchterms']").send_keys("camera")
     time.sleep(20)
@@ -15,7 +17,7 @@ def test_search(driver):
     time.sleep(20)
 
 def test_browse(driver):
-    driver.get(r'http://35.158.97.204/nopCommerce')
+    driver.get(r'{}/nopCommerce/'.format(host))
     time.sleep(20)
     driver.find_element_by_xpath("//*[@href='/nopCommerce/apparel']").click()
     time.sleep(20)
@@ -23,7 +25,7 @@ def test_browse(driver):
     time.sleep(20)
 
 def test_add_item_to_cart(driver):
-    driver.get(r'http://35.158.97.204/nopCommerce/adidas-consortium-campus-80s-running-shoes')
+    driver.get(r'{}/nopCommerce/adidas-consortium-campus-80s-running-shoes'.format(host))
     time.sleep(20)
     driver.find_element_by_xpath("//*[@value='Add to cart']").click()
     time.sleep(20)
