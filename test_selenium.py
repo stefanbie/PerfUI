@@ -2,11 +2,16 @@ from selenium import webdriver
 import time
 import pytest
 
-host = "http://18.184.244.248"
+host = "http://18.184.252.217"
 
 @pytest.fixture(autouse=True, scope='module')
 def driver():
-    return webdriver.Chrome()
+    options = webdriver.ChromeOptions()
+    options.headless = True
+    options.add_argument('disable-gpu')
+    options.add_argument('window-size=1200,1100')
+    driver = webdriver.Chrome(options=options)
+    return driver
 
 def test_search(driver):
     driver.get(r'{}/nopCommerce/'.format(host))
