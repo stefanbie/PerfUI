@@ -74,6 +74,12 @@ class User_pool():
     def size(self):
         return len(self.user_pool)
 
+def kill_chromedriver():
+    import psutil
+    for proc in psutil.process_iter():
+        if proc.name().startswith("chromedriver"):
+            proc.kill()
+
 if __name__ == "__main__":
 
     sp = Scenario_pool()
@@ -112,7 +118,6 @@ if __name__ == "__main__":
     for i in range(0, nbr_of_users):
         user = up.get_user(0)
         user.join()
-        if(i==nbr_of_users):
-            user.quit()
         up.delete_user(user)
+    kill_chromedriver()
     sys.stdout.write("\nTeardown finished\n")
