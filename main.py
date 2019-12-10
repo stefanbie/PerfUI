@@ -49,13 +49,16 @@ class User(Thread):
             scenario.method(self.driver)
             time.sleep(1)
 
+    def quit(self):
+        self.driver.quit()
+
 class User_pool():
 
     def __init__(self):
         self.user_pool = []
 
     def log_user_count(self):
-        sys.stdout.write("\rNbr of active users: {}".format(len(self.user_pool)))
+        sys.stdout.write("\r{} out of {} users active   ".format(len(self.user_pool), users))
 
     def add_user(self, user):
         self.user_pool.append(user)
@@ -83,28 +86,33 @@ if __name__ == "__main__":
             n += 1
             if (n > test_time):
                 break
-            sys.stdout.write("\rTime left: " + str(test_time - n) + "s")
+            sys.stdout.write("\rTime left: " + str(test_time - n) + "s  ")
 
     sp.add_scenario(Scenario(method=test_add_item_to_cart, probability=1))
     sp.add_scenario(Scenario(method=test_search, probability=3))
     sp.add_scenario(Scenario(method=test_browse, probability=2))
 
     ### Ramp up users ###
-    sys.stdout.write("rampup start\n")
+    sys.stdout.write("Rampup started\n")
     for i in range(0,users):
         up.add_user(User(sp))
         time.sleep(ramp_up_time/users)
+    sys.stdout.write("\nRampup finished\n")
 
     ### Wait for test_time ###
-    sys.stdout.write("\nRunning test\n")
+    sys.stdout.write("\nAll resources up. Running test\n")
     wait_test_time()
+    sys.stdout.write("\nTest finished\n")
 
     ### Stop test ###
-    sys.stdout.write("\nTest teardown\n")
+    sys.stdout.write("\nTeardown started\n")
     nbr_of_users = up.size()
     for i in range(0, nbr_of_users):
         up.get_user(i).stop()
     for i in range(0, nbr_of_users):
         user = up.get_user(0)
         user.join()
+        if(i==nbr_of_users):
+            user.quit()
         up.delete_user(user)
+    sys.stdout.write("\nTeardown finished\n")
