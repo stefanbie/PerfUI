@@ -1,6 +1,6 @@
 from threading import Thread
 from test_selenium import *
-import time, sys
+import time, sys, traceback, keyboard
 from random import randint
 
 users = 5
@@ -46,7 +46,10 @@ class User(Thread):
                 self.driver.close()
                 break
             scenario = sp.get_scenario()
-            scenario.method(self.driver)
+            try:
+                scenario.method(self.driver)
+            except Exception as err:
+                traceback.print_tb(err.__traceback__)
             time.sleep(1)
 
     def quit(self):
@@ -84,25 +87,54 @@ if __name__ == "__main__":
 
     sp = Scenario_pool()
     up = User_pool()
+    quit = False
+
+    def quit_test():
+        global quit
+        while (not quit):
+            if keyboard.is_pressed('q'):
+                sys.stdout.write('\nQuiting\n')
+                quit = True
+                time.sleep(0.5)
+                break
+
+    def rampup():
+        for i in range(0, users):
+            if(quit):
+                break
+            up.add_user(User(sp))
+            time.sleep(ramp_up_time / users)
 
     def wait_test_time():
         n = 0
         while (True):
-            time.sleep(1)
-            n += 1
-            if (n > test_time):
+            if ((n >= test_time) or quit):
                 break
+            n += 1
+            time.sleep(1)
             sys.stdout.write("\rTime left: " + str(test_time - n) + "s  ")
 
+    def tear_down():
+        nbr_of_users = up.size()
+        for i in range(0, nbr_of_users):
+            up.get_user(i).stop()
+        for i in range(0, nbr_of_users):
+            user = up.get_user(0)
+            user.join()
+            up.delete_user(user)
+
+    ### Start interrution thread ###
+    quit_thread = Thread(target=quit_test)
+    quit_thread.start()
+
+    ### Specify tests ###
     sp.add_scenario(Scenario(method=test_add_item_to_cart, probability=1))
     sp.add_scenario(Scenario(method=test_search, probability=3))
     sp.add_scenario(Scenario(method=test_browse, probability=2))
 
     ### Ramp up users ###
     sys.stdout.write("Rampup started\n")
-    for i in range(0,users):
-        up.add_user(User(sp))
-        time.sleep(ramp_up_time/users)
+    rampup()
     sys.stdout.write("\nRampup finished\n")
 
     ### Wait for test_time ###
@@ -112,12 +144,6 @@ if __name__ == "__main__":
 
     ### Stop test ###
     sys.stdout.write("\nTeardown started\n")
-    nbr_of_users = up.size()
-    for i in range(0, nbr_of_users):
-        up.get_user(i).stop()
-    for i in range(0, nbr_of_users):
-        user = up.get_user(0)
-        user.join()
-        up.delete_user(user)
+    tear_down()
     kill_chromedriver()
     sys.stdout.write("\nTeardown finished\n")
