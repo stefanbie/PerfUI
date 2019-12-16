@@ -97,8 +97,6 @@ if __name__ == "__main__":
     def rampup():
         sys.stdout.write("\nRampup started\n")
         for i in range(0, users):
-            if(quit):
-                break
             up.add_user(User(sp))
             time.sleep(ramp_up_time / users)
         sys.stdout.write("\nRampup finished\n")
