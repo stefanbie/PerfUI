@@ -1,6 +1,6 @@
 from threading import Thread
 from test_selenium import *
-import time, sys, traceback, keyboard
+import time, sys, traceback, signal, psutil
 from random import randint
 
 users = 5
@@ -77,44 +77,45 @@ class User_pool():
     def size(self):
         return len(self.user_pool)
 
-def kill_chromedriver():
-    import psutil
-    for proc in psutil.process_iter():
-        if proc.name().startswith("chromedriver"):
-            proc.kill()
 
 if __name__ == "__main__":
 
     sp = Scenario_pool()
     up = User_pool()
-    quit = False
 
-    def quit_test():
-        global quit
-        while (not quit):
-            if keyboard.is_pressed('q'):
-                sys.stdout.write('\nQuiting\n')
-                quit = True
-                time.sleep(0.5)
-                break
+    def kill_chromedrivers():
+        sys.stdout.write("\nKill Chromedrivers\n")
+        for proc in psutil.process_iter():
+            if proc.name().startswith("chromedriver"):
+                proc.kill()
+
+    def signal_handler(sig, frame):
+        sys.stdout.write("\nYou pressed Ctrl+C!\n")
+        kill_chromedrivers()
+        sys.exit(0)
 
     def rampup():
+        sys.stdout.write("\nRampup started\n")
         for i in range(0, users):
             if(quit):
                 break
             up.add_user(User(sp))
             time.sleep(ramp_up_time / users)
+        sys.stdout.write("\nRampup finished\n")
 
     def wait_test_time():
+        sys.stdout.write("\nAll resources up. Running test\n")
         n = 0
         while (True):
-            if ((n >= test_time) or quit):
+            if (n >= test_time):
                 break
             n += 1
             time.sleep(1)
             sys.stdout.write("\rTime left: " + str(test_time - n) + "s  ")
+        sys.stdout.write("\nTest finished\n")
 
     def tear_down():
+        sys.stdout.write("\nTeardown started\n")
         nbr_of_users = up.size()
         for i in range(0, nbr_of_users):
             up.get_user(i).stop()
@@ -122,28 +123,23 @@ if __name__ == "__main__":
             user = up.get_user(0)
             user.join()
             up.delete_user(user)
+        sys.stdout.write("\nTeardown finished\n")
 
-    ### Start interrution thread ###
-    quit_thread = Thread(target=quit_test)
-    quit_thread.start()
 
     ### Specify tests ###
     sp.add_scenario(Scenario(method=test_add_item_to_cart, probability=1))
     sp.add_scenario(Scenario(method=test_search, probability=3))
     sp.add_scenario(Scenario(method=test_browse, probability=2))
 
+    ### Init interrution handler ###
+    signal.signal(signal.SIGINT, signal_handler)
+
     ### Ramp up users ###
-    sys.stdout.write("Rampup started\n")
     rampup()
-    sys.stdout.write("\nRampup finished\n")
 
     ### Wait for test_time ###
-    sys.stdout.write("\nAll resources up. Running test\n")
     wait_test_time()
-    sys.stdout.write("\nTest finished\n")
 
     ### Stop test ###
-    sys.stdout.write("\nTeardown started\n")
     tear_down()
-    kill_chromedriver()
-    sys.stdout.write("\nTeardown finished\n")
+    kill_chromedrivers()
