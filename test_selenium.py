@@ -2,12 +2,12 @@ from selenium import webdriver
 import time
 import pytest
 
-host = "http://18.184.252.217"
+host = "http://3.124.6.60"
 
 @pytest.fixture(autouse=True, scope='module')
 def driver():
     options = webdriver.ChromeOptions()
-    options.headless = True
+    options.headless = False
     options.add_argument('disable-gpu')
     options.add_argument('window-size=1200,1100')
     driver = webdriver.Chrome(options=options)

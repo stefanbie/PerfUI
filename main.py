@@ -1,16 +1,13 @@
 from threading import Thread
 from test_selenium import *
-import time, sys, traceback, signal, psutil
+import time, sys, traceback, signal, psutil, argparse, logging
 from random import randint
-
-users = 5
-ramp_up_time = 20
-test_time = 60
 
 class Scenario():
     def __init__(self, method, probability):
         self.method = method
         self.probability = probability
+
 
 class Scenario_pool():
 
@@ -24,6 +21,7 @@ class Scenario_pool():
         for i in range(0, scenario.probability):
             self.scenario_pool.append(scenario)
 
+
 class User(Thread):
 
     def __init__(self, sp):
@@ -34,6 +32,7 @@ class User(Thread):
         self.options.headless = True
         self.options.add_argument('disable-gpu')
         self.options.add_argument('window-size=1200,1100')
+        self.options.add_experimental_option('excludeSwitches', ['enable-logging'])
         self.driver = webdriver.Chrome(options=self.options)
         self.start()
 
@@ -55,13 +54,14 @@ class User(Thread):
     def quit(self):
         self.driver.quit()
 
+
 class User_pool():
 
     def __init__(self):
         self.user_pool = []
 
     def log_user_count(self):
-        sys.stdout.write("\r{} out of {} users active   ".format(len(self.user_pool), users))
+        logging.info("{} users active   ".format(len(self.user_pool)))
 
     def add_user(self, user):
         self.user_pool.append(user)
@@ -78,65 +78,95 @@ class User_pool():
         return len(self.user_pool)
 
 
+def signal_handler(sig, frame):
+    sys.stdout.write("You pressed Ctrl+C!")
+    kill_chromedrivers()
+    sys.exit(0)
+
+
+def setup():
+    ### Read arguments ###
+    parser = argparse.ArgumentParser()
+    required = parser.add_argument_group('required arguments')
+    required.add_argument("--users", type=int, required=True, help="Number of test users to simulate")
+    required.add_argument("--rampuptime", type=int, required=True, help="Ramp up time until the number of users is reached")
+    required.add_argument("--testtime", type=int, required=True, help="The duration time for the test")
+    optional = parser.add_argument_group('optional arguments')
+    optional.add_argument("--log", type=str, help="Output verbosity, [DEBUG, INFO, WARNING]")
+    args = parser.parse_args()
+
+    ### Setup for log verbosity ###
+    loglevel = args.log
+    if loglevel:
+        numeric_level = getattr(logging, loglevel.upper(), None)
+        if not isinstance(numeric_level, int):
+            raise ValueError('Invalid log level: %s' % loglevel)
+    else:
+        numeric_level = getattr(logging, "INFO", None)
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=numeric_level)
+
+    ### Init interrution handler ###
+    signal.signal(signal.SIGINT, signal_handler)
+    return args
+
+
+def kill_chromedrivers():
+    logging.debug("Kill Chromedrivers")
+    for proc in psutil.process_iter():
+        if proc.name().startswith("chromedriver"):
+            proc.kill()
+
+
+def rampup(nbr_of_users, ramp_up_time_in_sec):
+    logging.info("Rampup started")
+    for i in range(0, nbr_of_users):
+        up.add_user(User(sp))
+        time.sleep(ramp_up_time_in_sec / nbr_of_users)
+    logging.info("Rampup finished")
+
+
+def wait_test_time(test_time_in_sec):
+    logging.info("All resources up. Running test")
+    n = 0
+    while (True):
+        if (n >= test_time_in_sec):
+            break
+        n += 10
+        time.sleep(10)
+        logging.info("Time left: " + str(test_time_in_sec - n) + "s  ")
+    logging.info("Test finished")
+
+
+def tear_down():
+    logging.info("Teardown started")
+    nbr_of_users = up.size()
+    for i in range(0, nbr_of_users):
+        up.get_user(i).stop()
+    for i in range(0, nbr_of_users):
+        user = up.get_user(0)
+        user.join()
+        up.delete_user(user)
+    logging.info("Teardown finished")
+
+
 if __name__ == "__main__":
 
     sp = Scenario_pool()
     up = User_pool()
 
-    def kill_chromedrivers():
-        sys.stdout.write("\nKill Chromedrivers\n")
-        for proc in psutil.process_iter():
-            if proc.name().startswith("chromedriver"):
-                proc.kill()
-
-    def signal_handler(sig, frame):
-        sys.stdout.write("\nYou pressed Ctrl+C!\n")
-        kill_chromedrivers()
-        sys.exit(0)
-
-    def rampup():
-        sys.stdout.write("\nRampup started\n")
-        for i in range(0, users):
-            up.add_user(User(sp))
-            time.sleep(ramp_up_time / users)
-        sys.stdout.write("\nRampup finished\n")
-
-    def wait_test_time():
-        sys.stdout.write("\nAll resources up. Running test\n")
-        n = 0
-        while (True):
-            if (n >= test_time):
-                break
-            n += 1
-            time.sleep(1)
-            sys.stdout.write("\rTime left: " + str(test_time - n) + "s  ")
-        sys.stdout.write("\nTest finished\n")
-
-    def tear_down():
-        sys.stdout.write("\nTeardown started\n")
-        nbr_of_users = up.size()
-        for i in range(0, nbr_of_users):
-            up.get_user(i).stop()
-        for i in range(0, nbr_of_users):
-            user = up.get_user(0)
-            user.join()
-            up.delete_user(user)
-        sys.stdout.write("\nTeardown finished\n")
-
+    ### Inital setup
+    args = setup()
 
     ### Specify tests ###
     sp.add_scenario(Scenario(method=test_add_item_to_cart, probability=1))
     sp.add_scenario(Scenario(method=test_search, probability=3))
     sp.add_scenario(Scenario(method=test_browse, probability=2))
 
-    ### Init interrution handler ###
-    signal.signal(signal.SIGINT, signal_handler)
-
     ### Ramp up users ###
-    rampup()
+    rampup(args.users, args.rampuptime)
 
     ### Wait for test_time ###
-    wait_test_time()
+    wait_test_time(args.testtime)
 
     ### Stop test ###
     tear_down()
