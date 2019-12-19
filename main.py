@@ -1,6 +1,6 @@
 from threading import Thread
 from test_selenium import *
-import time, sys, traceback, signal, psutil, argparse, logging
+import time, sys, traceback, signal, psutil, argparse, logging, json
 from random import randint
 
 class Scenario():
@@ -48,6 +48,7 @@ class User(Thread):
             try:
                 scenario.method(self.driver)
             except Exception as err:
+                print("olle")
                 traceback.print_tb(err.__traceback__)
             time.sleep(1)
 
@@ -88,9 +89,7 @@ def setup():
     ### Read arguments ###
     parser = argparse.ArgumentParser()
     required = parser.add_argument_group('required arguments')
-    required.add_argument("--users", type=int, required=True, help="Number of test users to simulate")
-    required.add_argument("--rampuptime", type=int, required=True, help="Ramp up time until the number of users is reached")
-    required.add_argument("--testtime", type=int, required=True, help="The duration time for the test")
+    required.add_argument("--conf", type=str, required=True, help="Path to configuration file")
     optional = parser.add_argument_group('optional arguments')
     optional.add_argument("--log", type=str, help="Output verbosity, [DEBUG, INFO, WARNING]")
     args = parser.parse_args()
@@ -103,10 +102,11 @@ def setup():
             raise ValueError('Invalid log level: %s' % loglevel)
     else:
         numeric_level = getattr(logging, "INFO", None)
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=numeric_level)
+    logging.basicConfig(format='%(asctime)s\t\t%(message)s', level=numeric_level)
 
     ### Init interrution handler ###
     signal.signal(signal.SIGINT, signal_handler)
+
     return args
 
 
@@ -150,7 +150,6 @@ def tear_down():
 
 
 if __name__ == "__main__":
-
     sp = Scenario_pool()
     up = User_pool()
 
@@ -158,15 +157,17 @@ if __name__ == "__main__":
     args = setup()
 
     ### Specify tests ###
-    sp.add_scenario(Scenario(method=test_add_item_to_cart, probability=1))
-    sp.add_scenario(Scenario(method=test_search, probability=3))
-    sp.add_scenario(Scenario(method=test_browse, probability=2))
+    with open(args.conf, 'r') as _file:
+        conf = json.loads(_file.read())
+    for testcase in conf["testcases"]:
+        logging.debug("Adding testcase {} with prio {}".format(testcase["name"], testcase["prio"]))
+        sp.add_scenario(Scenario(method=globals()[testcase["name"]], probability=testcase["prio"]))
 
     ### Ramp up users ###
-    rampup(args.users, args.rampuptime)
+    rampup(conf["users"], conf["rampuptime"])
 
     ### Wait for test_time ###
-    wait_test_time(args.testtime)
+    wait_test_time(conf["testtime"])
 
     ### Stop test ###
     tear_down()

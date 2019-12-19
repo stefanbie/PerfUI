@@ -1,8 +1,9 @@
 from selenium import webdriver
 import time
 import pytest
+import Test
 
-host = "http://3.124.6.60"
+host = "http://18.197.54.142"
 
 @pytest.fixture(autouse=True, scope='module')
 def driver():
@@ -40,4 +41,3 @@ def test_add_item_to_cart(driver):
     time.sleep(20)
     driver.find_element_by_xpath("//*[@name='updatecart']").click()
     time.sleep(20)
-

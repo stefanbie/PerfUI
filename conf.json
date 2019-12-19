@@ -1,0 +1,20 @@
+{
+  "users": 5,
+  "rampuptime": 30,
+  "testtime": 120,
+  "testcases":
+  [
+    {
+      "name": "test_search",
+      "prio": 1
+    },
+    {
+      "name": "test_browse",
+      "prio": 2
+    },
+    {
+      "name": "test_add_item_to_cart",
+      "prio": 3
+    }
+  ]
+}
