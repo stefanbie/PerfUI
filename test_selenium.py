@@ -1,7 +1,6 @@
 from selenium import webdriver
 import time
 import pytest
-import Test
 
 host = "http://18.197.54.142"
 
