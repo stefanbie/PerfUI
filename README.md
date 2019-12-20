@@ -10,44 +10,7 @@ The problem with UI based performance test has traditionally been that it consum
 The aim of the project is to create a minimal, robust framework for threading out UI test based on *pytest* together with *Selenium webdriver* and *Chrome*. The combination of the three tools was chosen based on certain criteria; free, increasing trend of interest, well documented. 
 
 ##Setup
-
 To setup a the performance environment on a clean Ubuntu:
-
-```
-# Use root
-sudo su
-
-# Install GUI
-apt-get update
-apt-get install -y unzip xvfb libxi6 libgconf-2-4
-
-# Install Chrome
-curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
-echo "deb [arch=amd64]  http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
-apt-get -y update
-apt-get -y install google-chrome-stable
-
-# Install ChromeDriver
-wget https://chromedriver.storage.googleapis.com/2.41/chromedriver_linux64.zip
-apt-get install unzip
-unzip chromedriver_linux64.zip
-mv chromedriver /usr/bin/chromedriver
-chown root:root /usr/bin/chromedriver
-chmod +x /usr/bin/chromedriver
-
-# Install Python3
-apt install python3
-
-# Install Pip
-apt install -y python3-pip
-
-# Exit root
-exit
-
-```
-
-To run a test do following:
-
 ```
 # Set up SSH:
 ssh-keygen
@@ -60,7 +23,13 @@ cat /home/ubuntu/.ssh/id_rsa.pub
 # Clone project:
 git clone git@github.com:system-verification/Performance-test.git
 
-# Install requirements
-sudo -H pip3 install -r ~/Performance-test/requirements.txt
+#run setup script
+chmod +x ~/Performance-test/env_setup.sh 
+sudo su -c ~/Performance-test/env_setup.sh root 
+```
+To run a test do following:
 
+```
+cd ~/Performance-test
+python3 main.py --conf="./conf.json
 ```
