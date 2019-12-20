@@ -41,9 +41,6 @@ apt install python3
 # Install Pip
 apt install -y python3-pip
 
-# Install Selenium
-python3 -m pip install -U selenium
-
 # Exit root
 exit
 
