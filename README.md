@@ -10,6 +10,7 @@ The problem with UI based performance test has traditionally been that it consum
 The aim of the project is to create a minimal, robust framework for threading out UI test based on *pytest* together with *Selenium webdriver* and *Chrome*. The combination of the three tools was chosen based on certain criteria; free, increasing trend of interest, well documented. 
 
 ##Setup
+
 To setup a the performance environment on a clean Ubuntu:
 ```
 # Set up SSH:
