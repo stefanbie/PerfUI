@@ -89,7 +89,7 @@ def setup():
     ### Read arguments ###
     parser = argparse.ArgumentParser()
     required = parser.add_argument_group('required arguments')
-    required.add_argument("--conf", type=str, required=True, help="Path to configuration file")
+    required.add_argument("--conf", type=str, required=True, help="Path to configuration file ie 'python3 main.py --conf='./conf.json''")
     optional = parser.add_argument_group('optional arguments')
     optional.add_argument("--log", type=str, help="Output verbosity, [DEBUG, INFO, WARNING]")
     args = parser.parse_args()
