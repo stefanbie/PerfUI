@@ -23,5 +23,5 @@ apt install python3
 # Install Pip
 apt install -y python3-pip
 
-Install python libs
+# Install python libs
 sudo -H pip3 install -r ~/Performance-test/requirements.txt
