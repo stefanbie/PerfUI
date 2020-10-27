@@ -21,7 +21,7 @@ cat /home/ubuntu/.ssh/id_rsa.pub
 # Add the key to https://github.com/settings/ssh/new
 
 # Clone project:
-git clone git@github.com:system-verification/Performance-test.git
+git clone https://github.com/stefanbie/PerfUI.git
 
 #run setup script
 chmod +x ~/Performance-test/env_setup.sh 
