@@ -24,11 +24,11 @@ cat /home/ubuntu/.ssh/id_rsa.pub
 git clone https://github.com/stefanbie/PerfUI.git
 
 #run setup script
-chmod +x ~/Performance-test/env_setup.sh 
-sudo su -c ~/Performance-test/env_setup.sh root 
+chmod +x ~/PerfUI/env_setup.sh 
+sudo su -c ~/PerfUI/env_setup.sh root 
 ```
 ## Specify testcases
-In the ~/Performance-test/conf.json you specify the testcases and the priority of the test cases that will be executed. Below is an example that is included in the project. Prio 3 means that it will be executed 3 times more than the testcase with prio 1.
+In the ~/PerfUI/conf.json you specify the testcases and the priority of the test cases that will be executed. Below is an example that is included in the project. Prio 3 means that it will be executed 3 times more than the testcase with prio 1.
 ```
 {
   "users": 5,
@@ -55,6 +55,6 @@ The testcases refers to example pytest testcases included in the project. To run
 ## Run test
 To run a test do following:
 ```
-cd ~/Performance-test
+cd ~/PerfUI
 python3 main.py --conf="./conf.json
 ```
