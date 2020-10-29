@@ -1,42 +1,46 @@
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 import time
 import pytest
 
-host = "http://18.197.54.142"
+host = "https://www.google.com"
+
 
 @pytest.fixture(autouse=True, scope='module')
 def driver():
     options = webdriver.ChromeOptions()
-    options.headless = False
+    options.headless = True
     options.add_argument('disable-gpu')
     options.add_argument('window-size=1200,1100')
     driver = webdriver.Chrome(options=options)
     return driver
 
-def test_search(driver):
-    driver.get(r'{}/nopCommerce/'.format(host))
-    time.sleep(20)
-    driver.find_element_by_xpath("//*[@id='small-searchterms']").send_keys("camera")
-    time.sleep(20)
-    driver.find_element_by_xpath("//*[@value='Search']").click()
-    time.sleep(20)
 
-def test_browse(driver):
-    driver.get(r'{}/nopCommerce/'.format(host))
-    time.sleep(20)
-    driver.find_element_by_xpath("//*[@href='/nopCommerce/apparel']").click()
-    time.sleep(20)
-    driver.find_element_by_xpath("//*[@title='Show products in category Shoes']").click()
-    time.sleep(20)
+def google_search(driver):
+    driver.get(r"{}/".format(host))
+    time.sleep(2)
+    approve_cookies(driver)
+    time.sleep(2)
+    driver.find_element(By.NAME, "q").send_keys("camera" + Keys.ENTER)
+    time.sleep(2)
 
-def test_add_item_to_cart(driver):
-    driver.get(r'{}/nopCommerce/adidas-consortium-campus-80s-running-shoes'.format(host))
-    time.sleep(20)
-    driver.find_element_by_xpath("//*[@value='Add to cart']").click()
-    time.sleep(20)
-    driver.find_element_by_xpath("//*[text()='Shopping cart']").click()
-    time.sleep(20)
-    driver.find_element_by_xpath("//*[@name='removefromcart']").click()
-    time.sleep(20)
-    driver.find_element_by_xpath("//*[@name='updatecart']").click()
-    time.sleep(20)
+
+def google_browse(driver):
+    driver.get(r"{}/".format(host))
+    time.sleep(2)
+    approve_cookies(driver)
+    time.sleep(2)
+    driver.find_element(By.XPATH, "//div[3]/center/input[2]").click()
+    time.sleep(2)
+
+
+def approve_cookies(driver):
+    try:
+        driver.switch_to.frame(0)
+        driver.find_element(By.XPATH, "//*[@id='introAgreeButton']").click()
+        driver.switch_to.default_content()
+    except Exception:
+        pass
+
+

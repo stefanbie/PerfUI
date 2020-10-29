@@ -1,15 +1,16 @@
-from threading import Thread
-from test_selenium import *
 import time, sys, traceback, signal, psutil, argparse, logging, json
+from threading import Thread
 from random import randint
+from test_selenium import *
 
-class Scenario():
+
+class Scenario:
     def __init__(self, method, probability):
         self.method = method
         self.probability = probability
 
 
-class Scenario_pool():
+class Scenario_pool:
 
     def __init__(self):
         self.scenario_pool = []
@@ -29,7 +30,7 @@ class User(Thread):
         self.daemon = True
         self.stop_user = False
         self.options = webdriver.ChromeOptions()
-        self.options.headless = True
+        self.options.headless = False
         self.options.add_argument('disable-gpu')
         self.options.add_argument('window-size=1200,1100')
         self.options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -40,8 +41,8 @@ class User(Thread):
         self.stop_user = True
 
     def run(self):
-        while(True):
-            if(self.stop_user):
+        while True:
+            if self.stop_user:
                 self.driver.close()
                 break
             scenario = sp.get_scenario()
@@ -56,8 +57,7 @@ class User(Thread):
         self.driver.quit()
 
 
-class User_pool():
-
+class User_pool:
     def __init__(self):
         self.user_pool = []
 
@@ -104,7 +104,7 @@ def setup():
         numeric_level = getattr(logging, "INFO", None)
     logging.basicConfig(format='%(asctime)s\t\t%(message)s', level=numeric_level)
 
-    ### Init interrution handler ###
+    ### Init interruption handler ###
     signal.signal(signal.SIGINT, signal_handler)
 
     return args
@@ -128,8 +128,8 @@ def rampup(nbr_of_users, ramp_up_time_in_sec):
 def wait_test_time(test_time_in_sec):
     logging.info("All resources up. Running test")
     n = 0
-    while (True):
-        if (n >= test_time_in_sec):
+    while True:
+        if n >= test_time_in_sec:
             break
         n += 10
         time.sleep(10)
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     sp = Scenario_pool()
     up = User_pool()
 
-    ### Inital setup
+    ### Initial setup
     args = setup()
 
     ### Specify tests ###
