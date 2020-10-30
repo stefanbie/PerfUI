@@ -204,15 +204,15 @@ def tear_down():
         user = up.get_user(0)
         user.join()
         up.delete_user(user)
+    kill_chromedrivers()
     logging.info("Teardown finished")
 
 
 if __name__ == "__main__":
     sp = Scenario_pool()
     up = User_pool()
-
     config = setup()
+    
     rampup(config["users"], config["rampup_time"])
     wait_test_time(config["test_time"])
     tear_down()
-    kill_chromedrivers()
