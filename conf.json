@@ -1,16 +1,16 @@
 {
   "users": 3,
-  "rampuptime": 10,
-  "testtime": 60,
-  "testcases":
+  "rampup_time": 10,
+  "test_time": 60,
+  "test_scenarios":
   [
     {
-      "name": "google_search",
-      "prio": 1
+      "method": "google_search",
+      "probability": 1
     },
     {
-      "name": "google_browse",
-      "prio": 2
+      "method": "google_browse",
+      "probability": 2
     }
   ]
 }
