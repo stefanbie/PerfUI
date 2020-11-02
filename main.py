@@ -212,7 +212,7 @@ if __name__ == "__main__":
     sp = Scenario_pool()
     up = User_pool()
     config = setup()
-    
+
     rampup(config["users"], config["rampup_time"])
     wait_test_time(config["test_time"])
     tear_down()
