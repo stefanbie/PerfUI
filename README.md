@@ -52,5 +52,5 @@ The testcases refers to example pytest testcases included in the project. To run
 To run a test do following:
 ```
 cd ~/PerfUI
-python3 main.py --conf="./conf.json
+python3 main.py --conf=./conf.json
 ```
