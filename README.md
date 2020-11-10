@@ -28,25 +28,21 @@ chmod +x ~/PerfUI/env_setup.sh
 sudo su -c ~/PerfUI/env_setup.sh root 
 ```
 ## Specify testcases
-In the ~/PerfUI/conf.json you specify the testcases and the priority of the test cases that will be executed. Below is an example that is included in the project. Prio 3 means that it will be executed 3 times more than the testcase with prio 1.
+In the ~/PerfUI/conf.json you specify the testcases and the probability of the test cases to be executed. Below is an example that is included in the project. Probablility 2 means that it will be executed two times more than the testcase with probablility 1.
 ```
 {
-  "users": 5,
-  "rampuptime": 30,
-  "testtime": 120,
-  "testcases":
+  "users": 3,
+  "rampup_time": 10,
+  "test_time": 60,
+  "test_scenarios":
   [
     {
-      "name": "test_search",
-      "prio": 1
+      "method": "google_search",
+      "probability": 1
     },
     {
-      "name": "test_browse",
-      "prio": 2
-    },
-    {
-      "name": "test_add_item_to_cart",
-      "prio": 3
+      "method": "google_browse",
+      "probability": 2
     }
   ]
 }
@@ -56,5 +52,5 @@ The testcases refers to example pytest testcases included in the project. To run
 To run a test do following:
 ```
 cd ~/PerfUI
-python3 main.py --conf="./conf.json
+python3 main.py --conf=./conf.json
 ```

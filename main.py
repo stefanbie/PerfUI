@@ -50,10 +50,10 @@ class User(Thread):
         self.stop_user = False
         self.options = webdriver.ChromeOptions()
         self.options.headless = True
-        self.options.add_argument('disable-gpu')
         self.options.add_argument('--no-sandbox')
-        self.options.add_argument('window-size=1200,1100')
+        self.options.add_argument('disable-gpu')
         self.options.add_argument("--disable-dev-shm-usage")
+        self.options.add_argument('window-size=1200,1100')
         self.driver = webdriver.Chrome(options=self.options)
         self.start()
 
