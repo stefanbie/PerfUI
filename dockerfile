@@ -21,4 +21,4 @@ RUN apt-get install -y git
 RUN git clone https://github.com/stefanbie/PerfUI.git
 RUN pip3 install -r PerfUI/requirements.txt
 
-CMD ["python3", "/PerfUI/test.py"]
+CMD ["python3", "main.py --conf=./tests/conf.json"]
