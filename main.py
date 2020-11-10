@@ -1,7 +1,7 @@
 import logging, sys, traceback, signal, psutil, argparse, json
 from threading import Thread
 from random import randint
-from test_scenarios import *
+from tests.test_scenarios import *
 
 
 class Scenario:
@@ -51,8 +51,9 @@ class User(Thread):
         self.options = webdriver.ChromeOptions()
         self.options.headless = True
         self.options.add_argument('disable-gpu')
+        self.options.add_argument('--no-sandbox')
         self.options.add_argument('window-size=1200,1100')
-        self.options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        self.options.add_argument("--disable-dev-shm-usage")
         self.driver = webdriver.Chrome(options=self.options)
         self.start()
 
