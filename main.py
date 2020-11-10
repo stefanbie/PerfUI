@@ -122,7 +122,7 @@ def setup():
     def read_arguments():
         parser = argparse.ArgumentParser()
         required = parser.add_argument_group('required arguments')
-        required.add_argument("--conf", type=str, required=True,
+        required.add_argument("--conf", type=str, required=False,
                               help="Path to configuration file ie 'python3 main.py --conf='./conf.json''")
         optional = parser.add_argument_group('optional arguments')
         optional.add_argument("--log", type=str, help="Output verbosity, [DEBUG, INFO, WARNING]")
@@ -146,7 +146,7 @@ def setup():
         signal.signal(signal.SIGINT, signal_handler)
 
     args = read_arguments()
-    with open(args.conf, 'r') as _file:
+    with open("tests/conf.json", 'r') as _file:
         conf = json.loads(_file.read())
     setup_log_verbosity(args.log)
     add_scenarios_to_pool(conf)
