@@ -17,7 +17,7 @@ def driver():
     return driver
 
 
-def google_search(driver):
+def test_google_search(driver):
     driver.get(r"{}/".format(host))
     time.sleep(2)
     approve_cookies(driver)
@@ -26,7 +26,7 @@ def google_search(driver):
     time.sleep(2)
 
 
-def google_browse(driver):
+def test_google_browse(driver):
     driver.get(r"{}/".format(host))
     time.sleep(2)
     approve_cookies(driver)
@@ -42,5 +42,3 @@ def approve_cookies(driver):
         driver.switch_to.default_content()
     except Exception:
         pass
-
-

@@ -1,7 +1,7 @@
 import logging, sys, traceback, signal, psutil, argparse, json
 from threading import Thread
 from random import randint
-from tests.test_scenarios import *
+#from mnt.test_scenarios import *
 
 
 class Scenario:
@@ -123,7 +123,7 @@ def setup():
         parser = argparse.ArgumentParser()
         required = parser.add_argument_group('required arguments')
         required.add_argument("--conf", type=str, required=False,
-                              help="Path to configuration file ie 'python3 main.py --conf='./conf.json''")
+                              help="Path to configuration file ie 'python3 main.py --conf='./perf_conf.json''")
         optional = parser.add_argument_group('optional arguments')
         optional.add_argument("--log", type=str, help="Output verbosity, [DEBUG, INFO, WARNING]")
         return parser.parse_args()
@@ -137,8 +137,15 @@ def setup():
             numeric_level = getattr(logging, "INFO", None)
         logging.basicConfig(format='%(asctime)s\t\t%(message)s', level=numeric_level)
 
+    def import_module(module):
+        import importlib
+        mdl = importlib.import_module(module)
+        names = [x for x in mdl.__dict__ if not x.startswith("_")]
+        globals().update({k: getattr(mdl, k) for k in names})
+
     def add_scenarios_to_pool(con):
         for scenario in con["test_scenarios"]:
+            import_module("mnt." + scenario["relative_path"].replace(".py", "").replace("/", "."))
             logging.debug("Adding scenario {} with prio {}".format(scenario["method"], scenario["probability"]))
             sp.add_scenario(Scenario(method=globals()[scenario["method"]], probability=scenario["probability"]))
 
@@ -146,7 +153,7 @@ def setup():
         signal.signal(signal.SIGINT, signal_handler)
 
     args = read_arguments()
-    with open("tests/conf.json", 'r') as _file:
+    with open("mnt/perf_conf.json", 'r') as _file:
         conf = json.loads(_file.read())
     setup_log_verbosity(args.log)
     add_scenarios_to_pool(conf)

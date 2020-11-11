@@ -9,26 +9,8 @@ The problem with UI based performance test has traditionally been that it consum
 
 The aim of the project is to create a minimal, robust framework for threading out UI test based on *pytest* together with *Selenium webdriver* and *Chrome*. The combination of the three tools was chosen based on certain criteria; free, increasing trend of interest, well documented. 
 
-## Environment Setup
-To setup a the performance environment on a clean Ubuntu instance:
-```
-# Set up SSH:
-ssh-keygen
-# Enter file in which to save the key (/home/ubuntu/.ssh/id_rsa):[Enter]
-# Enter passphrase (empty for no passphrase):[Enter]
-# Enter same passphrase again:[Enter]
-cat /home/ubuntu/.ssh/id_rsa.pub
-# Add the key to https://github.com/settings/ssh/new
-
-# Clone project:
-git clone https://github.com/stefanbie/PerfUI.git
-
-#run setup script
-chmod +x ~/PerfUI/env_setup.sh 
-sudo su -c ~/PerfUI/env_setup.sh root 
-```
-## Specify testcases
-In the ~/PerfUI/conf.json you specify the testcases and the probability of the test cases to be executed. Below is an example that is included in the project. Probablility 2 means that it will be executed two times more than the testcase with probablility 1.
+## Test setup
+Place a perf_conf.json file in the root of your project. In the conf file you specify the relative path to the test case files, the name of the test methods and the probability of the test cases to be executed. You also specify the number of users to be simulated, the rampup time and the time for the test to run (in seconds). Below is an example. Probability 2 means that it will be executed two times more than the testcase with probability 1.
 ```
 {
   "users": 3,
@@ -37,20 +19,20 @@ In the ~/PerfUI/conf.json you specify the testcases and the probability of the t
   "test_scenarios":
   [
     {
+      "relative_path": "tests/test_scenarios.py",
       "method": "google_search",
       "probability": 1
     },
     {
+      "relative_path": "tests/test_scenarios.py",
       "method": "google_browse",
       "probability": 2
     }
   ]
 }
 ```
-The testcases refers to example pytest testcases included in the project. To run your other tests, add them to the project and refer to them in the conf.json file.
 ## Run test
-To run a test do following:
+To setup and run using Docker:
 ```
-cd ~/PerfUI
-python3 main.py --conf=./conf.json
+docker run -it --mount type=bind,source=[path to root of your project],target=/PerfUI/mnt sbie/perfui
 ```
