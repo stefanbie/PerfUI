@@ -5,12 +5,12 @@
   "test_scenarios":
   [
     {
-      "relative_path": "tests/test_scenarios2.py",
+      "relative_path": "tests/test_scenarios.py",
       "method": "test_google_search",
       "probability": 1
     },
     {
-      "relative_path": "tests/test_scenarios2.py",
+      "relative_path": "tests/test_scenarios.py",
       "method": "test_google_browse",
       "probability": 2
     }

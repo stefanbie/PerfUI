@@ -1,7 +1,7 @@
-import logging, sys, traceback, signal, psutil, argparse, json
+import logging, sys, traceback, signal, psutil, argparse, json, time, importlib
 from threading import Thread
 from random import randint
-#from mnt.test_scenarios import *
+from selenium import webdriver
 
 
 class Scenario:
@@ -33,7 +33,7 @@ class Scenario_pool:
         self.scenario_pool = []
 
     def get_scenario(self):
-        return self.scenario_pool[randint(0, len(self.scenario_pool)-1)]
+        return self.scenario_pool[randint(0, len(self.scenario_pool) - 1)]
 
     def add_scenario(self, scenario):
         for i in range(0, scenario.probability):
@@ -89,7 +89,7 @@ class User_pool:
         self.user_pool = []
 
     def log_user_count(self):
-        logging.info("{} users active   ".format(len(self.user_pool)))
+        logging.info("{} users active.".format(len(self.user_pool)))
 
     def add_user(self, user):
         self.user_pool.append(user)
@@ -121,9 +121,6 @@ def setup():
 
     def read_arguments():
         parser = argparse.ArgumentParser()
-        required = parser.add_argument_group('required arguments')
-        required.add_argument("--conf", type=str, required=False,
-                              help="Path to configuration file ie 'python3 main.py --conf='./perf_conf.json''")
         optional = parser.add_argument_group('optional arguments')
         optional.add_argument("--log", type=str, help="Output verbosity, [DEBUG, INFO, WARNING]")
         return parser.parse_args()
@@ -138,16 +135,19 @@ def setup():
         logging.basicConfig(format='%(asctime)s\t\t%(message)s', level=numeric_level)
 
     def import_module(module):
-        import importlib
         mdl = importlib.import_module(module)
         names = [x for x in mdl.__dict__ if not x.startswith("_")]
         globals().update({k: getattr(mdl, k) for k in names})
 
     def add_scenarios_to_pool(con):
         for scenario in con["test_scenarios"]:
-            import_module("mnt." + scenario["relative_path"].replace(".py", "").replace("/", "."))
-            logging.debug("Adding scenario {} with prio {}".format(scenario["method"], scenario["probability"]))
-            sp.add_scenario(Scenario(method=globals()[scenario["method"]], probability=scenario["probability"]))
+            try:
+                import_module("mnt." + scenario["relative_path"].replace(".py", "").replace("/", "."))
+            except:
+                logging.warning("WARNING: Path was not found: {}. Consider changing the perf_conf.json file.".format(scenario["relative_path"]))
+            else:
+                sp.add_scenario(Scenario(method=globals()[scenario["method"]], probability=scenario["probability"]))
+                logging.info("Test case \"{}\" with probability {} was added to scope.".format(scenario["method"], scenario["probability"]))
 
     def add_signal_handler():
         signal.signal(signal.SIGINT, signal_handler)
@@ -157,8 +157,8 @@ def setup():
         conf = json.loads(_file.read())
     setup_log_verbosity(args.log)
     add_scenarios_to_pool(conf)
-    add_signal_handler()
 
+    add_signal_handler()
     return conf
 
 
@@ -178,7 +178,7 @@ def rampup(nbr_of_users, ramp_up_time_in_sec):
     :param ramp_up_time_in_sec: Time to ramp up the final number of users
     """
 
-    logging.info('Rampup started')
+    logging.info("Ramping up {} users in {} seconds.".format(nbr_of_users, ramp_up_time_in_sec))
     for i in range(0, nbr_of_users):
         up.add_user(User())
         time.sleep(ramp_up_time_in_sec / nbr_of_users)
